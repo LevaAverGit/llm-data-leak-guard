@@ -1,0 +1,43 @@
+{
+  "leak_class": "email",
+  "kind": "pii",
+  "label": "EMAIL",
+  "detector_hint": "presidio",
+  "synthetic": true,
+  "description": "Email addresses on reserved example.* domains (never real inboxes).",
+  "examples": [
+    {
+      "id": "email-1",
+      "text": "Forward the summary to ivan.petrov@example.com by end of day.",
+      "spans": [
+        {
+          "start": 23,
+          "end": 46,
+          "label": "EMAIL",
+          "kind": "pii",
+          "text": "ivan.petrov@example.com"
+        }
+      ]
+    },
+    {
+      "id": "email-2",
+      "text": "CC both maria_ivanova@example.org and support@example.net on the reply.",
+      "spans": [
+        {
+          "start": 8,
+          "end": 33,
+          "label": "EMAIL",
+          "kind": "pii",
+          "text": "maria_ivanova@example.org"
+        },
+        {
+          "start": 38,
+          "end": 57,
+          "label": "EMAIL",
+          "kind": "pii",
+          "text": "support@example.net"
+        }
+      ]
+    }
+  ]
+}

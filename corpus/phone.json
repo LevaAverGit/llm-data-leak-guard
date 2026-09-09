@@ -1,0 +1,56 @@
+{
+  "leak_class": "phone",
+  "kind": "pii",
+  "label": "PHONE",
+  "detector_hint": "presidio",
+  "synthetic": true,
+  "description": "Russian and international phone numbers in several written formats.",
+  "examples": [
+    {
+      "id": "phone-1",
+      "text": "Please call the client back at +7 900 123-45-67 before noon.",
+      "spans": [
+        {
+          "start": 31,
+          "end": 47,
+          "label": "PHONE",
+          "kind": "pii",
+          "text": "+7 900 123-45-67"
+        }
+      ]
+    },
+    {
+      "id": "phone-2",
+      "text": "Backup contact number is 8 (912) 000-11-22 if the first one fails.",
+      "spans": [
+        {
+          "start": 25,
+          "end": 42,
+          "label": "PHONE",
+          "kind": "pii",
+          "text": "8 (912) 000-11-22"
+        }
+      ]
+    },
+    {
+      "id": "phone-3",
+      "text": "Two numbers on file: +7-921-555-00-11 and 8 495 000 22 33.",
+      "spans": [
+        {
+          "start": 21,
+          "end": 37,
+          "label": "PHONE",
+          "kind": "pii",
+          "text": "+7-921-555-00-11"
+        },
+        {
+          "start": 42,
+          "end": 57,
+          "label": "PHONE",
+          "kind": "pii",
+          "text": "8 495 000 22 33"
+        }
+      ]
+    }
+  ]
+}

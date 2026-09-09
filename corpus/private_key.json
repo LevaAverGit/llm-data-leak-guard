@@ -1,0 +1,23 @@
+{
+  "leak_class": "private_key",
+  "kind": "secret",
+  "label": "PRIVATE_KEY",
+  "detector_hint": "secrets_regex",
+  "synthetic": true,
+  "description": "PEM-encoded private key block. Synthetic FAKE body, not a usable key.",
+  "examples": [
+    {
+      "id": "private_key-1",
+      "text": "Someone pasted a full private key into the prompt:\n-----BEGIN RSA PRIVATE KEY-----\nMIIEXAMPLEnotArealprivatekeyFAKE0000000000000000000000000000AB\nCDEXAMPLEdoNotUseThisKeyItIsSyntheticFAKE00000000000000000000\n-----END RSA PRIVATE KEY-----\nplease help debug the TLS handshake.",
+      "spans": [
+        {
+          "start": 51,
+          "end": 237,
+          "label": "PRIVATE_KEY",
+          "kind": "secret",
+          "text": "-----BEGIN RSA PRIVATE KEY-----\nMIIEXAMPLEnotArealprivatekeyFAKE0000000000000000000000000000AB\nCDEXAMPLEdoNotUseThisKeyItIsSyntheticFAKE00000000000000000000\n-----END RSA PRIVATE KEY-----"
+        }
+      ]
+    }
+  ]
+}

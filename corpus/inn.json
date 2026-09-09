@@ -1,0 +1,36 @@
+{
+  "leak_class": "inn",
+  "kind": "pii",
+  "label": "INN",
+  "detector_hint": "presidio_ru",
+  "synthetic": true,
+  "description": "Russian taxpayer number INN, 10-digit (legal entity) and 12-digit (individual); valid checksums, synthetic bases.",
+  "examples": [
+    {
+      "id": "inn-1",
+      "text": "The counterparty INN 7701234560 is listed on the invoice header.",
+      "spans": [
+        {
+          "start": 21,
+          "end": 31,
+          "label": "INN",
+          "kind": "pii",
+          "text": "7701234560"
+        }
+      ]
+    },
+    {
+      "id": "inn-2",
+      "text": "Sole proprietor INN 770123456703 appears in the draft agreement.",
+      "spans": [
+        {
+          "start": 20,
+          "end": 32,
+          "label": "INN",
+          "kind": "pii",
+          "text": "770123456703"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# llm-data-leak-guard runtime + dev dependencies
+# Pinned to major-compatible ranges; run `make install` to set up a venv.
+
+# API / proxy layer
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.29,<1.0
+httpx>=0.27,<1.0
+
+# PII detection (Microsoft Presidio + spaCy small English model)
+presidio-analyzer>=2.2,<3.0
+presidio-anonymizer>=2.2,<3.0
+spacy>=3.7,<4.0
+# the model itself is installed separately: python -m spacy download en_core_web_sm
+
+# schemas / validation
+pydantic>=2,<3
+
+# metrics
+prometheus_client>=0.20,<1.0
+
+# tests
+pytest>=8.0,<9.0

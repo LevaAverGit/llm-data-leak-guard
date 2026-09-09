@@ -1,0 +1,23 @@
+{
+  "leak_class": "card",
+  "kind": "pii",
+  "label": "CARD",
+  "detector_hint": "presidio",
+  "synthetic": true,
+  "description": "Payment card PAN, 16 digits in 4x4 groups; Luhn-valid. Uses 4111 1111 1111 1111, the universally reserved Visa test number, not a real card.",
+  "examples": [
+    {
+      "id": "card-1",
+      "text": "Card on file 4111 1111 1111 1111 should never be stored in plain text.",
+      "spans": [
+        {
+          "start": 13,
+          "end": 32,
+          "label": "CARD",
+          "kind": "pii",
+          "text": "4111 1111 1111 1111"
+        }
+      ]
+    }
+  ]
+}

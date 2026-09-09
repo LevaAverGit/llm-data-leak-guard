@@ -1,0 +1,49 @@
+{
+  "leak_class": "api_key",
+  "kind": "secret",
+  "label": "API_KEY",
+  "detector_hint": "secrets_regex",
+  "synthetic": true,
+  "description": "Provider API keys. All are obviously-invalid EXAMPLE placeholders, not real credentials.",
+  "examples": [
+    {
+      "id": "api_key-1",
+      "text": "Hardcoded key found in the notebook: sk-proj-EXAMPLE-not-real-000000000000000000000000 - rotate immediately.",
+      "spans": [
+        {
+          "start": 37,
+          "end": 86,
+          "label": "API_KEY",
+          "kind": "secret",
+          "text": "sk-proj-EXAMPLE-not-real-000000000000000000000000"
+        }
+      ]
+    },
+    {
+      "id": "api_key-2",
+      "text": "AWS access key AKIAEXAMPLENOTREAL00 was printed to the application log.",
+      "spans": [
+        {
+          "start": 15,
+          "end": 35,
+          "label": "API_KEY",
+          "kind": "secret",
+          "text": "AKIAEXAMPLENOTREAL00"
+        }
+      ]
+    },
+    {
+      "id": "api_key-3",
+      "text": "GitHub token ghp_EXAMPLEnotReal0000000000000000000000 was committed to the public repo by accident.",
+      "spans": [
+        {
+          "start": 13,
+          "end": 53,
+          "label": "API_KEY",
+          "kind": "secret",
+          "text": "ghp_EXAMPLEnotReal0000000000000000000000"
+        }
+      ]
+    }
+  ]
+}

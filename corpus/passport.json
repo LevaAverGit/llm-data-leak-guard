@@ -1,0 +1,36 @@
+{
+  "leak_class": "passport",
+  "kind": "pii",
+  "label": "PASSPORT",
+  "detector_hint": "presidio_ru",
+  "synthetic": true,
+  "description": "Russian internal passport (4-digit series + 6-digit number), varied spacing.",
+  "examples": [
+    {
+      "id": "passport-1",
+      "text": "The scanned passport 4509 123456 was attached to the onboarding form.",
+      "spans": [
+        {
+          "start": 21,
+          "end": 32,
+          "label": "PASSPORT",
+          "kind": "pii",
+          "text": "4509 123456"
+        }
+      ]
+    },
+    {
+      "id": "passport-2",
+      "text": "RU passport 6504 987654 is quoted in the support ticket by mistake.",
+      "spans": [
+        {
+          "start": 12,
+          "end": 23,
+          "label": "PASSPORT",
+          "kind": "pii",
+          "text": "6504 987654"
+        }
+      ]
+    }
+  ]
+}

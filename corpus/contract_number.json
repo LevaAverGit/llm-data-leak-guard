@@ -1,0 +1,36 @@
+{
+  "leak_class": "contract_number",
+  "kind": "requisite",
+  "label": "CONTRACT",
+  "detector_hint": "requisites_regex",
+  "synthetic": true,
+  "description": "Business contract / agreement reference numbers (custom patterns).",
+  "examples": [
+    {
+      "id": "contract_number-1",
+      "text": "Reference: Contract No. 44-AB/2024 was signed by both parties.",
+      "spans": [
+        {
+          "start": 24,
+          "end": 34,
+          "label": "CONTRACT",
+          "kind": "requisite",
+          "text": "44-AB/2024"
+        }
+      ]
+    },
+    {
+      "id": "contract_number-2",
+      "text": "Please quote agreement 2024/07-1567 in every future email.",
+      "spans": [
+        {
+          "start": 23,
+          "end": 35,
+          "label": "CONTRACT",
+          "kind": "requisite",
+          "text": "2024/07-1567"
+        }
+      ]
+    }
+  ]
+}

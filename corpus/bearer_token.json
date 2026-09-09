@@ -1,0 +1,23 @@
+{
+  "leak_class": "bearer_token",
+  "kind": "secret",
+  "label": "BEARER_TOKEN",
+  "detector_hint": "secrets_regex",
+  "synthetic": true,
+  "description": "JWT / bearer authorization token. Synthetic EXAMPLE payload, not valid.",
+  "examples": [
+    {
+      "id": "bearer_token-1",
+      "text": "The curl command used Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJFWEFNUExFIjoibm90LXJlYWwifQ.EXAMPLEsignatureNOTREAL0000 in production.",
+      "spans": [
+        {
+          "start": 44,
+          "end": 123,
+          "label": "BEARER_TOKEN",
+          "kind": "secret",
+          "text": "eyJhbGciOiJIUzI1NiJ9.eyJFWEFNUExFIjoibm90LXJlYWwifQ.EXAMPLEsignatureNOTREAL0000"
+        }
+      ]
+    }
+  ]
+}

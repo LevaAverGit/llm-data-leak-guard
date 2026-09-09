@@ -1,0 +1,18 @@
+# virtualenv
+.venv/
+
+# python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# env / secrets (never commit)
+.env
+
+# internal planning doc (not part of the public artifact)
+PLAN.md
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/

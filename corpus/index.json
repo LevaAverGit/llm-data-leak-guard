@@ -1,0 +1,65 @@
+{
+  "synthetic": true,
+  "classes": [
+    {
+      "leak_class": "phone",
+      "kind": "pii",
+      "label": "PHONE",
+      "file": "phone.json"
+    },
+    {
+      "leak_class": "email",
+      "kind": "pii",
+      "label": "EMAIL",
+      "file": "email.json"
+    },
+    {
+      "leak_class": "passport",
+      "kind": "pii",
+      "label": "PASSPORT",
+      "file": "passport.json"
+    },
+    {
+      "leak_class": "inn",
+      "kind": "pii",
+      "label": "INN",
+      "file": "inn.json"
+    },
+    {
+      "leak_class": "snils",
+      "kind": "pii",
+      "label": "SNILS",
+      "file": "snils.json"
+    },
+    {
+      "leak_class": "card",
+      "kind": "pii",
+      "label": "CARD",
+      "file": "card.json"
+    },
+    {
+      "leak_class": "api_key",
+      "kind": "secret",
+      "label": "API_KEY",
+      "file": "api_key.json"
+    },
+    {
+      "leak_class": "private_key",
+      "kind": "secret",
+      "label": "PRIVATE_KEY",
+      "file": "private_key.json"
+    },
+    {
+      "leak_class": "bearer_token",
+      "kind": "secret",
+      "label": "BEARER_TOKEN",
+      "file": "bearer_token.json"
+    },
+    {
+      "leak_class": "contract_number",
+      "kind": "requisite",
+      "label": "CONTRACT",
+      "file": "contract_number.json"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "leak_class": "mixed",
+  "kind": "mixed",
+  "label": "MIXED",
+  "detector_hint": "all",
+  "synthetic": true,
+  "description": "Realistic multi-leak prompt combining PII, a secret and a requisite; used for the before/after demo.",
+  "examples": [
+    {
+      "id": "mixed-1",
+      "text": "Client Ivan Petrov, +7 900 123-45-67, contract 44-AB/2024, key sk-proj-EXAMPLE-not-real-000000000000000000000000, please help draft a reply.",
+      "spans": [
+        {
+          "start": 7,
+          "end": 18,
+          "label": "PERSON",
+          "kind": "pii",
+          "text": "Ivan Petrov"
+        },
+        {
+          "start": 20,
+          "end": 36,
+          "label": "PHONE",
+          "kind": "pii",
+          "text": "+7 900 123-45-67"
+        },
+        {
+          "start": 47,
+          "end": 57,
+          "label": "CONTRACT",
+          "kind": "requisite",
+          "text": "44-AB/2024"
+        },
+        {
+          "start": 63,
+          "end": 112,
+          "label": "API_KEY",
+          "kind": "secret",
+          "text": "sk-proj-EXAMPLE-not-real-000000000000000000000000"
+        }
+      ]
+    }
+  ]
+}

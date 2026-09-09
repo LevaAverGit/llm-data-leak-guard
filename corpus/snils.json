@@ -1,0 +1,23 @@
+{
+  "leak_class": "snils",
+  "kind": "pii",
+  "label": "SNILS",
+  "detector_hint": "presidio_ru",
+  "synthetic": true,
+  "description": "Russian individual insurance account number SNILS (XXX-XXX-XXX YY); valid control digit, synthetic base.",
+  "examples": [
+    {
+      "id": "snils-1",
+      "text": "Employee SNILS 112-233-445 95 was pasted into the HR chat thread.",
+      "spans": [
+        {
+          "start": 15,
+          "end": 29,
+          "label": "SNILS",
+          "kind": "pii",
+          "text": "112-233-445 95"
+        }
+      ]
+    }
+  ]
+}
