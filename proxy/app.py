@@ -23,17 +23,15 @@ Safety invariants enforced here:
 
 from __future__ import annotations
 
-import importlib
-import inspect as _inspect
 import logging
-import os
-from typing import Callable, List, Optional
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from guard import GuardResult, __version__ as guard_version
+from guard.redactor import guard as _guard_pipeline
 
 logger = logging.getLogger("guard.proxy")
 
@@ -44,121 +42,18 @@ MOCK_MODEL_NAME = "mock-echo-001"
 
 
 # --------------------------------------------------------------------------- #
-# Guard pipeline resolution
+# Guard pipeline
 # --------------------------------------------------------------------------- #
-# The combined guard pipeline (detectors + redactor) lives in the ``guard``
-# package (currently ``guard.redactor.guard``). To stay decoupled from its exact
-# public name we resolve it dynamically the first time it is needed, trying the
-# idiomatic entrypoints in priority order and validating that a candidate really
-# takes a single text argument (so a two-argument helper such as
-# ``redactor.redact(text, findings)`` is not mistaken for the pipeline). An
-# explicit override is honoured via ``GUARD_ENTRYPOINT="module:attr"``.
-_GUARD_MODULES = ("guard", "guard.pipeline", "guard.redactor")
-_GUARD_NAMES = (
-    "inspect",
-    "inspect_prompt",
-    "run_guard",
-    "guard",
-    "guard_prompt",
-    "run",
-    "protect",
-    "scan",
-    "redact",
-)
-# Method names tried when a resolved entrypoint turns out to be a class.
-_METHOD_CANDIDATES = ("inspect", "run", "run_guard", "guard", "scan", "redact", "__call__")
-
-_guard_callable: Optional[Callable[[str], GuardResult]] = None
-
-
-def _accepts_single_text_arg(fn: Callable) -> bool:
-    """True if ``fn`` can be called as ``fn(text)`` (<=1 required positional)."""
-    try:
-        sig = _inspect.signature(fn)
-    except (TypeError, ValueError):
-        return True  # builtins / C callables: assume compatible
-    required_positional = 0
-    accepts_positional = False
-    for param in sig.parameters.values():
-        if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
-            accepts_positional = True
-            if param.default is param.empty:
-                required_positional += 1
-        elif param.kind is param.VAR_POSITIONAL:
-            return True
-    return accepts_positional and required_positional <= 1
-
-
-def _as_guard_callable(obj: object) -> Optional[Callable[[str], GuardResult]]:
-    """Turn a resolved object into a ``(text) -> GuardResult`` callable.
-
-    Accepts a plain function, a bound method, or a class (instantiated with no
-    arguments and then probed for a suitable inspection method). The chosen
-    callable must accept a single text argument.
-    """
-    if obj is None:
-        return None
-    if isinstance(obj, type):
-        try:
-            instance = obj()
-        except Exception:
-            return None
-        for method in _METHOD_CANDIDATES:
-            candidate = getattr(instance, method, None)
-            if callable(candidate) and _accepts_single_text_arg(candidate):
-                return candidate  # type: ignore[return-value]
-        return None
-    if callable(obj) and _accepts_single_text_arg(obj):
-        return obj  # type: ignore[return-value]
-    return None
-
-
-def _candidate_pairs() -> List[tuple]:
-    pairs: List[tuple] = []
-    override = os.environ.get("GUARD_ENTRYPOINT", "").strip()
-    if override and ":" in override:
-        mod_name, attr_name = override.split(":", 1)
-        pairs.append((mod_name.strip(), attr_name.strip()))
-    for mod_name in _GUARD_MODULES:
-        for attr_name in _GUARD_NAMES:
-            pairs.append((mod_name, attr_name))
-    return pairs
-
-
-def _resolve_guard() -> Optional[Callable[[str], GuardResult]]:
-    """Locate and cache the guard pipeline callable, or return ``None``."""
-    global _guard_callable
-    if _guard_callable is not None:
-        return _guard_callable
-
-    for mod_name, attr_name in _candidate_pairs():
-        try:
-            module = importlib.import_module(mod_name)
-        except Exception:
-            continue
-        fn = _as_guard_callable(getattr(module, attr_name, None))
-        if fn is not None:
-            _guard_callable = fn
-            logger.info("guard pipeline resolved: %s:%s", mod_name, attr_name)
-            return _guard_callable
-    return None
-
-
 def _guard_ready() -> bool:
-    """Honest readiness signal: True only if the pipeline actually runs.
+    """True only if the pipeline actually runs on a constant, non-sensitive probe.
 
-    Resolving the callable is not enough — a resolved guard can still raise at
-    call time (e.g. a lazily loaded detector's dependency is missing). This runs
-    the resolved pipeline on a constant, non-sensitive probe string and reports
-    ``False`` if resolution or that run fails, so a health/probe endpoint does
-    not advertise readiness for a pipeline that would 500. The probe text is a
-    fixed literal, never user input, so nothing sensitive is involved.
+    Importing the callable is not enough — a lazily loaded detector dependency
+    (Presidio/spaCy) can still be missing and only surface at call time, so the
+    probe runs the whole pass. The probe text is a fixed literal, never user
+    input, so nothing sensitive is involved.
     """
-    guard_fn = _resolve_guard()
-    if guard_fn is None:
-        return False
     try:
-        guard_fn("ping")
+        _guard_pipeline("ping")
         return True
     except Exception:
         logger.warning("guard readiness probe failed")
@@ -166,36 +61,16 @@ def _guard_ready() -> bool:
 
 
 def run_guard(prompt: str) -> GuardResult:
-    """Run the guard over ``prompt`` and return a validated ``GuardResult``.
+    """Run the guard over ``prompt`` and return its ``GuardResult``.
 
-    Raises ``HTTPException(503)`` if the guard pipeline is not available yet
-    (e.g. detectors not installed), and ``HTTPException(500)`` if the pipeline
-    raises. Neither error path echoes the raw prompt.
+    Raises ``HTTPException(500)`` if the pipeline raises — for example a detector
+    dependency is missing. The error path never echoes the raw prompt.
     """
-    guard_fn = _resolve_guard()
-    if guard_fn is None:
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "Guard pipeline is not available. Install dependencies "
-                "(`make install`) so the detectors and redactor can load."
-            ),
-        )
     try:
-        result = guard_fn(prompt)
+        return _guard_pipeline(prompt)
     except Exception:
-        # Log the failure without any prompt content.
         logger.exception("guard pipeline raised while inspecting a prompt")
         raise HTTPException(status_code=500, detail="Guard inspection failed.")
-
-    if not isinstance(result, GuardResult):
-        # Be strict: the pipeline must honour the shared contract.
-        try:
-            result = GuardResult.model_validate(result)
-        except Exception:
-            logger.error("guard pipeline returned a non-GuardResult value")
-            raise HTTPException(status_code=500, detail="Guard returned an invalid result.")
-    return result
 
 
 # --------------------------------------------------------------------------- #

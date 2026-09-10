@@ -8,8 +8,8 @@ This module turns Presidio ``RecognizerResult`` objects into the project's
 * Russian phone numbers, internal passports, INN (taxpayer id) and SNILS
   (insurance id) via custom recognizers registered into the Presidio engine.
 
-Design note — lazy, robust initialisation
-------------------------------------------
+Design note — lazy initialisation
+---------------------------------
 Presidio and its spaCy model are a heavy optional dependency. They are imported
 *inside* the builder functions, never at module import time, so that
 ``import guard.pii`` always succeeds. The NLP stack is loaded on the first

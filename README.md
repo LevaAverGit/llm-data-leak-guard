@@ -15,12 +15,15 @@ before:  Client Ivan Petrov, +7 900 123-45-67, contract 44-AB/2024,
 after:   [PERSON], [PHONE], contract [CONTRACT], key [API_KEY],
          please help draft a reply.
 
-caught:  4 of 4  ·  latency: 5 ms (median)
+caught:  4 of 4  ·  latency: tens of ms (run make bench)
 ```
 
-> Real numbers from `make bench` over the synthetic corpus (Apple Silicon,
-> Python 3.11): **20 of 20 ground-truth spans caught (100%)** across all ten
-> leak classes, at **mean 3.0 ms / p95 5.0 ms** per guard call after warm-up.
+> From `make bench` over the synthetic corpus: **20 of 20 ground-truth spans
+> caught (100%)** across all ten leak classes. A guard call is dominated by the
+> spaCy NLP pass and lands in the tens of milliseconds on a commodity laptop
+> (the pure-regex secret/requisite detectors are sub-millisecond); it moves with
+> hardware and CPU load, so run `make bench` for the numbers on your machine.
+> Either way it is small next to the LLM round-trip it sits in front of.
 > All example values are synthetic and the API key is an obviously-invalid
 > `EXAMPLE` placeholder. Note the guard masks *`Client Ivan Petrov`* as a single
 > `[PERSON]` — spaCy's name entity greedily absorbs the leading word `Client`
@@ -124,12 +127,13 @@ corpus (`make bench`, 25 repeats per example):
   secret. The split is the whole reason false positives stay low.
 
 - **Latency is dominated by the spaCy NLP pass, and the first call must be
-  warmed up.** Steady-state is **mean ~3.0 ms, p95 ~5.0 ms** per guard call; the
-  very first Presidio/spaCy call is far slower (model load) and is excluded from
-  the benchmark. The pure-regex detectors (secrets, requisites) are
-  sub-millisecond — the slowest class is the multi-line `private_key` block
-  (~5 ms), confirming cost scales with text length through the NLP engine, not
-  with the number of secret rules.
+  warmed up.** Every guard call runs the text through Presidio/spaCy, which puts
+  steady-state cost in the tens of milliseconds per call (hardware- and
+  load-dependent); the very first call is far slower (model load) and is
+  excluded from the benchmark. The pure-regex detectors (secrets, requisites)
+  are sub-millisecond — the slowest class is the multi-line `private_key` block,
+  confirming cost scales with text length through the NLP engine, not with the
+  number of secret rules.
 
 - **The safety win is architectural, not statistical.** Even where a detector
   could miss, the design guarantees the raw value never leaves: the proxy passes

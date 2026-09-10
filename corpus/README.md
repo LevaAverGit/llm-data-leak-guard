@@ -39,8 +39,8 @@ Each `*.json` file:
 }
 ```
 
-- `spans[*].start` / `end` are half-open Python string offsets, so
-  `text[start:end] == text` field of the span (the test suite asserts this).
+- `spans[*].start` / `end` are half-open Python string offsets: `text[start:end]`
+  equals the span's `text` field (the test suite asserts this).
 - `kind` and `label` line up with the `Finding` contract in `guard/schema.py`.
 - `index.json` lists every class file for iteration in tests.
 

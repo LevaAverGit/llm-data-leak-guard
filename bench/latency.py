@@ -23,107 +23,17 @@ Only redacted text is printed. The corpus is fully synthetic (see
 from __future__ import annotations
 
 import argparse
-import importlib
-import inspect as _inspect
 import json
-import os
 import sys
 import time
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
 from guard import GuardResult
+from guard.redactor import guard  # the combined detector + redactor pipeline
 
 CORPUS_DIR = Path(__file__).resolve().parent.parent / "corpus"
 DEFAULT_REPEATS = 25
-
-# Kept in sync with proxy.app: the combined pipeline lives in the ``guard``
-# package (currently ``guard.redactor.guard``). Candidates are tried in priority
-# order and validated to take a single text argument, so a two-argument helper
-# like ``redactor.redact(text, findings)`` is not mistaken for the pipeline.
-# Override with GUARD_ENTRYPOINT="module:attr".
-_GUARD_MODULES = ("guard", "guard.pipeline", "guard.redactor")
-_GUARD_NAMES = (
-    "inspect",
-    "inspect_prompt",
-    "run_guard",
-    "guard",
-    "guard_prompt",
-    "run",
-    "protect",
-    "scan",
-    "redact",
-)
-_METHOD_CANDIDATES = ("inspect", "run", "run_guard", "guard", "scan", "redact", "__call__")
-
-
-# --------------------------------------------------------------------------- #
-# Guard pipeline resolution
-# --------------------------------------------------------------------------- #
-def _accepts_single_text_arg(fn: Callable) -> bool:
-    """True if ``fn`` can be called as ``fn(text)`` (<=1 required positional)."""
-    try:
-        sig = _inspect.signature(fn)
-    except (TypeError, ValueError):
-        return True
-    required_positional = 0
-    accepts_positional = False
-    for param in sig.parameters.values():
-        if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
-            accepts_positional = True
-            if param.default is param.empty:
-                required_positional += 1
-        elif param.kind is param.VAR_POSITIONAL:
-            return True
-    return accepts_positional and required_positional <= 1
-
-
-def _as_guard_callable(obj: object) -> Optional[Callable[[str], GuardResult]]:
-    if obj is None:
-        return None
-    if isinstance(obj, type):
-        try:
-            instance = obj()
-        except Exception:
-            return None
-        for method in _METHOD_CANDIDATES:
-            candidate = getattr(instance, method, None)
-            if callable(candidate) and _accepts_single_text_arg(candidate):
-                return candidate  # type: ignore[return-value]
-        return None
-    if callable(obj) and _accepts_single_text_arg(obj):
-        return obj  # type: ignore[return-value]
-    return None
-
-
-def _candidate_pairs() -> List[Tuple[str, str]]:
-    pairs: List[Tuple[str, str]] = []
-    override = os.environ.get("GUARD_ENTRYPOINT", "").strip()
-    if override and ":" in override:
-        mod_name, attr_name = override.split(":", 1)
-        pairs.append((mod_name.strip(), attr_name.strip()))
-    for mod_name in _GUARD_MODULES:
-        for attr_name in _GUARD_NAMES:
-            pairs.append((mod_name, attr_name))
-    return pairs
-
-
-def resolve_guard() -> Callable[[str], GuardResult]:
-    """Locate the guard pipeline callable or raise a clear error."""
-    for mod_name, attr_name in _candidate_pairs():
-        try:
-            module = importlib.import_module(mod_name)
-        except Exception:
-            continue
-        fn = _as_guard_callable(getattr(module, attr_name, None))
-        if fn is not None:
-            return fn
-
-    raise RuntimeError(
-        "Could not locate the guard pipeline. Install dependencies "
-        "(`make install`) so the detectors and redactor are importable, or set "
-        "GUARD_ENTRYPOINT='module:attr'."
-    )
 
 
 # --------------------------------------------------------------------------- #
@@ -211,7 +121,7 @@ def time_call(guard_fn: Callable[[str], GuardResult], text: str) -> Tuple[float,
 
 def run_benchmark(repeats: int = DEFAULT_REPEATS) -> dict:
     """Run the full latency + coverage benchmark and return a summary dict."""
-    guard_fn = resolve_guard()
+    guard_fn = guard
     examples = load_examples()
     if not examples:
         raise RuntimeError(f"No corpus examples found under {CORPUS_DIR}.")
