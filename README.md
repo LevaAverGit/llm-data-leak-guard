@@ -5,6 +5,8 @@ A guard layer that **inspects an outgoing prompt and strips sensitive content
 LLM.** It sits in front of the model as a FastAPI proxy: inspect → redact →
 forward. The model (and the model provider's logs) only ever see masked text.
 
+*Why it matters: an employee pasting client data into an LLM is personal-data processing outside your perimeter — a 152-FZ / GDPR breach in the making. This proxy removes it before the model, or its provider's logs, ever see it.*
+
 ```
 before:  Client Ivan Petrov, +7 900 123-45-67, contract 44-AB/2024,
          key sk-proj-EXAMPLE-not-real-000000000000000000000000,
