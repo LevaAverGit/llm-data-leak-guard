@@ -39,7 +39,9 @@ _ANCHOR = (
 
 # Optional filler between the anchor noun and the reference: whitespace,
 # punctuation and a number marker such as "No.", "number", "№" or "#".
-_LEAD = r"[\s:.#№-]*(?:no\.?|number|nr\.?|№|#)?[\s:.#№-]*"
+# Bounded ({0,8}) so a long delimiter run cannot be partitioned between the two
+# classes in O(k^2) ways; 8 chars of filler between anchor and number is ample.
+_LEAD = r"[\s:.#№-]{0,8}(?:no\.?|number|nr\.?|№|#)?[\s:.#№-]{0,8}"
 
 # A reference token: alphanumeric blocks joined by '-' or '/', e.g. "44-AB/2024"
 # or "2024/07-1567". The token is captured (group 1) so we can mask exactly it.

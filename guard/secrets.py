@@ -70,9 +70,11 @@ _RULES: tuple[_SecretRule, ...] = (
         name="pem_private_key",
         label="PRIVATE_KEY",
         pattern=re.compile(
-            r"-----BEGIN[A-Z0-9 ]*?PRIVATE KEY-----"
-            r"[\s\S]*?"
-            r"-----END[A-Z0-9 ]*?PRIVATE KEY-----"
+            # Bounded quantifiers keep this linear: a stray BEGIN without a
+            # matching END rescans at most 8000 chars, not to end-of-input.
+            r"-----BEGIN[A-Z0-9 ]{0,40}?PRIVATE KEY-----"
+            r"[\s\S]{0,8000}?"
+            r"-----END[A-Z0-9 ]{0,40}?PRIVATE KEY-----"
         ),
     ),
     # OpenAI-style secret key: sk-... including project keys sk-proj-...
@@ -118,7 +120,9 @@ _RULES: tuple[_SecretRule, ...] = (
     _SecretRule(
         name="url_password",
         label="PASSWORD",
-        pattern=re.compile(r"[A-Za-z][A-Za-z0-9+.\-]*://[^\s:/@]+:([^\s:/@]+)@"),
+        # Scheme length is bounded (schemes are short), so the class before
+        # "://" cannot scan the whole input from every start position (was O(n^2)).
+        pattern=re.compile(r"[A-Za-z][A-Za-z0-9+.\-]{0,31}://[^\s:/@]{1,256}:([^\s:/@]{1,256})@"),
         group=1,
     ),
     # Generic assignment: secret/token/password/api_key = <high-entropy value>.

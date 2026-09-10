@@ -250,7 +250,9 @@ class CompleteRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    prompt: str = Field(..., min_length=1, description="Outgoing prompt to inspect.")
+    # Upper bound caps detector/NER work per request and bounds the blast radius
+    # of any pathological input; 20k chars comfortably fits real prompts.
+    prompt: str = Field(..., min_length=1, max_length=20_000, description="Outgoing prompt to inspect.")
     model: Optional[str] = Field(
         default=None, description="Optional mock model name to attribute the completion to."
     )
