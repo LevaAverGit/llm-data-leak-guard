@@ -1,5 +1,10 @@
 # llm-data-leak-guard
 
+[![CI](https://github.com/LevaAverGit/llm-data-leak-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/LevaAverGit/llm-data-leak-guard/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+
 A guard layer that **inspects an outgoing prompt and strips sensitive content
 — personal data, secrets, business identifiers — before it ever reaches the
 LLM.** It sits in front of the model as a FastAPI proxy: inspect → redact →
